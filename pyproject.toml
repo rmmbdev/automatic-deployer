@@ -1,0 +1,21 @@
+[project]
+name = "automatic-deployer"
+version = "0.1.0"
+description = "A CLI App to watch git repo and automatically run a command (deploy command, ex. build and run docker container) after inspecting some changes."
+authors = [
+    { name = "Reza Mohammadi", email = "rmm.dev.backend@gmail.com" },
+]
+dependencies = [
+    "typer[all]>=0.6.1",
+    "GitPython>=3.1.27",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = { text = "MIT" }
+
+[build-system]
+requires = ["pdm-pep517>=1.0.0"]
+build-backend = "pdm.pep517.api"
+
+[tool]
+[tool.pdm]
