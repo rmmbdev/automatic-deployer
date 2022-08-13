@@ -1,0 +1,2 @@
+from deployer.manipulators.git_manipulator import GitManipulator
+from deployer.manipulators.command_manipulator import CommandManipulator
