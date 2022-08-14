@@ -2,4 +2,4 @@
 # deployer/__init__.py
 
 __app_name__ = "deployer"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
