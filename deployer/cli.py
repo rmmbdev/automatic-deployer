@@ -13,6 +13,7 @@ from deployer.consts import (
     ERROR_TEMPLATE,
     COMMAND_UNDONE,
     COMMAND_HINT,
+    COMMAND_SUCCESSFUL,
     OATH
 )
 
@@ -159,7 +160,7 @@ def setup(
         "sleep_interval": sleep_interval
     }
     save_configs(new_configs)
-    print(f"[green]✔️ Configurations updated![green]")
+    print(COMMAND_SUCCESSFUL.format("Configurations updated!"))
 
 
 @app.command()
@@ -224,7 +225,7 @@ def reset(
             "sleep_interval": 2
         }
         save_configs(new_configs)
-        print(f"[green]✔️ Configurations Reset![green]")
+        print(COMMAND_SUCCESSFUL.format("Configurations Reset!"))
     else:
         print(COMMAND_UNDONE)
 

@@ -1,7 +1,7 @@
 ERROR_TEMPLATE = "⚠ [bold red]{}[/bold red]"
 COMMAND_UNDONE = "✋ [bold Yellow]Command will not take effect.[/bold Yellow]"
 COMMAND_HINT = "👉 [bold Green]You may need to run:[/bold Green] [italic]{}[/italic]"
-
+COMMAND_SUCCESSFUL = "[green]✔️ {}[green]"
 OATH = "\n" \
        "    Night gathers, and now my watch begins. \n" \
        "    It shall not end until my death. \n" \
