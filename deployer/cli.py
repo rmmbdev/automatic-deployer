@@ -210,6 +210,26 @@ def start(see_the_oath_and_metaphor_of_the_app: bool = True):
 
 
 @app.command()
+def reset(
+        sure: bool = typer.Option(
+            default=False,
+            prompt="Are you sure?",
+        ),
+):
+    if sure:
+        new_configs = {
+            "setup_done": False,
+            "git_repo_url": "",
+            "execute_command": "",
+            "sleep_interval": 2
+        }
+        save_configs(new_configs)
+        print(f"[green]✔️ Configurations Reset![green]")
+    else:
+        print(COMMAND_UNDONE)
+
+
+@app.command()
 def configs():
     print("deployer configurations")
     print(get_configs(), sep='\n')
