@@ -11,8 +11,10 @@ A CLI App to watch git repo and automatically run a command (deploy command, ex.
 ## Running
 ### Setup
 Use the following command to set up watcher <br>
-Follow the prompt for required inputs or use `--help` to direct accessing the command arguments <br>
+Follow the prompt for required inputs <br>
     `deployer setup`
+Or use `--help` to direct accessing the command arguments <br>
+    `deployer setup --help`
 ### Run
 Use the following command to start watching repo up watcher <br>
     `deployer start`
