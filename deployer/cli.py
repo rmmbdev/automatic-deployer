@@ -1,3 +1,5 @@
+"""This module provides the Automatic Deployer CLI."""
+
 import json
 import os
 import shutil
@@ -9,7 +11,9 @@ from deployer.manipulators import GitManipulator, CommandManipulator
 from rich import print
 from deployer.consts import (
     ERROR_TEMPLATE,
-    COMMAND_UNDONE
+    COMMAND_UNDONE,
+    COMMAND_HINT,
+    OATH
 )
 
 
@@ -56,18 +60,7 @@ def save_configs(new_configs: dict) -> None:
 
 
 def get_oath() -> str:
-    return ("\n"
-            "    Night gathers, and now my watch begins. \n"
-            "    It shall not end until my death. \n"
-            "    I shall take no wife, hold no lands, father no children. \n"
-            "    I shall wear no crowns and win no glory. \n"
-            "    I shall live and die at my post.\n"
-            "    I am the sword in the darkness. \n"
-            "    I am the watcher on the walls. \n"
-            "    I am the fire that burns against the cold,\n the light that brings the dawn,\n"
-            " the horn that wakes the sleepers,\n the shield that guards the realms of men. \n"
-            "    I pledge my life and honor to the Night’s Watch, for this night and all the nights to come. \n"
-            "    G.R.R. Martin")
+    return OATH
 
 
 def get_cleaned_src_folder() -> str:
@@ -171,17 +164,17 @@ def setup(
 
 @app.command()
 def start(see_the_oath_and_metaphor_of_the_app: bool = True):
-    if see_the_oath_and_metaphor_of_the_app:
-        print(get_oath())
-
     # one time fetching
     configs = get_configs()
 
     # check for setup done
     if not configs["setup_done"]:
         print(ERROR_TEMPLATE.format("Setup did not run successfully."))
-        print(COMMAND_UNDONE)
+        print(COMMAND_HINT.format("deployer setup"))
         raise typer.Exit()
+
+    if see_the_oath_and_metaphor_of_the_app:
+        print(get_oath())
 
     # clone repo
     gtm = GitManipulator(git_url=configs["git_repo_url"])
