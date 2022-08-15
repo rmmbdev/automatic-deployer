@@ -123,9 +123,8 @@ def setup(
 
     if run_after_setup:
         gtm.setup_repo(project_root)
-        cmm = CommandManipulator(root=True)
-        cmm.run("Running Command", command)
-        # CommandManipulator.run(command)
+        cmm = CommandManipulator(run_as_root=True)
+        cmm.run(message="Running Command", command=command, repo_directory=gtm.repo_directory, show_output=True)
 
     # report
     if state["verbose"]:
@@ -147,7 +146,10 @@ def setup(
 
 
 @app.command()
-def start(see_the_oath_and_metaphor_of_the_app: bool = True):
+def start(
+        see_the_oath_and_metaphor_of_the_app: bool = True,
+        verbose: bool = typer.Option(default=False, ),
+):
     # one time fetching
     configs = get_configs()
 
@@ -177,8 +179,13 @@ def start(see_the_oath_and_metaphor_of_the_app: bool = True):
         latest_tags = gtm.fetch_tags(renew=False)
 
     # run the command
-    cmm = CommandManipulator(root=True)
-    cmm.run(message="running command", command=configs["execute_command"])
+    cmm = CommandManipulator(run_as_root=True)
+    cmm.run(
+        message="running command",
+        command=configs["execute_command"],
+        repo_directory=gtm.repo_directory,
+        show_output=verbose
+    )
 
     sleep_duration = configs["sleep_interval"] * 60
     # watch the repo
@@ -201,7 +208,12 @@ def start(see_the_oath_and_metaphor_of_the_app: bool = True):
             latest_tags = tags
 
             typer.echo("Running command")
-            cmm.run(message="running command", command=configs["execute_command"])
+            cmm.run(
+                message="running command",
+                command=configs["execute_command"],
+                repo_directory=gtm.repo_directory,
+                show_output=verbose
+            )
 
 
 @app.command()

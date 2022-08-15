@@ -6,8 +6,8 @@ import os
 
 
 class GitManipulator:
+    repo_directory: str | None = None
     _git_url: str | None = None
-    _root_directory: str | None = None
     _repo: git.Repo | None = None
     _remote: git.Remote | None = None
     _branch: str | None = None
@@ -34,13 +34,13 @@ class GitManipulator:
                 raise ex
 
     def setup_repo(self, root_directory: str) -> None:
-        self._root_directory = root_directory
+        self.repo_directory = root_directory
         self._clone_repo()
         self._branch = self._repo.heads[0].name
         self._remote = git.Remote(self._repo, "origin")
 
     def update_repo(self, renew: bool = False):
-        if self._root_directory is None:
+        if self.repo_directory is None:
             raise Exception("setup_repo first!")
 
         if renew:
@@ -104,7 +104,7 @@ class GitManipulator:
             else:
                 raise
 
-        src_path = os.path.join(self._root_directory, "src")
+        src_path = os.path.join(self.repo_directory, "src")
         # os.remove(src_path)
         try:
             shutil.rmtree(src_path, onerror=onerror)

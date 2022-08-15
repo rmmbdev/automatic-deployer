@@ -7,16 +7,17 @@ import time
 class CommandManipulator:
     wheel = ['|', '/', '-', '\\']
 
-    def __init__(self, root: bool = False):
-        if platform.system() == 'Linux' and root and os.geteuid() != 0:
+    def __init__(self, run_as_root: bool = False):
+        if platform.system() == 'Linux' and run_as_root and os.geteuid() != 0:
             print('This script must be run as root')
             raise SystemExit(1)
 
-    def run(self, message: str, command: str, die: bool = True, show_output: bool = False) -> bool:
+    def run(self, message: str, command: str, repo_directory: str, die: bool = True, show_output: bool = False) -> bool:
         temp = '\r [%s] ' + message
         idx = 0
 
         if platform.system() == 'Windows':
+            command = f"cd \"{repo_directory}\\src\"; " + command
             proc = subprocess.Popen(
                 ['powershell.exe', command],
                 shell=True,
@@ -25,6 +26,7 @@ class CommandManipulator:
             )
 
         elif platform.system() == 'Linux':
+            command = f"cd \"{repo_directory}/src\" && " + command
             proc = subprocess.Popen(
                 command,
                 shell=True,
