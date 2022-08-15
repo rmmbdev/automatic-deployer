@@ -23,4 +23,8 @@ Use the following command to start watching repo up watcher. <br>
 Use `--help` for additional commands and their functionality.
 
 ## Notes
+* If you want to watch a private repo, you can use the following style git url. <br>
+  `https://oauth2:TOKEN@github.com/username/repo.git`
+  * TOKEN can be generated throw your vcs. 
+## Future Features
 * Currently, it only supports `main` branch but in near we will add option to watch other branches too.
