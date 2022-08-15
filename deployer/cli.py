@@ -2,13 +2,10 @@
 
 import json
 import os
-import shutil
 import time
 
 import typer
 from deployer import __app_name__, __version__
-from deployer.manipulators import GitManipulator, CommandManipulator
-from rich import print
 from deployer.consts import (
     ERROR_TEMPLATE,
     COMMAND_UNDONE,
@@ -16,6 +13,8 @@ from deployer.consts import (
     COMMAND_SUCCESSFUL,
     OATH
 )
+from deployer.manipulators import GitManipulator, CommandManipulator
+from rich import print
 
 
 def main(
@@ -64,37 +63,6 @@ def get_oath() -> str:
     return OATH
 
 
-def get_cleaned_src_folder() -> str:
-    def onerror(func, path, exc_info):
-        """
-        Error handler for ``shutil.rmtree``.
-
-        If the error is due to an access error (read only file)
-        it attempts to add write permission and then retries.
-
-        If the error is for another reason it re-raises the error.
-
-        Usage : ``shutil.rmtree(path, onerror=onerror)``
-        """
-        import stat
-        # Is the error an access error?
-        if not os.access(path, os.W_OK):
-            os.chmod(path, stat.S_IWUSR)
-            func(path)
-        else:
-            raise
-
-    src_path = os.path.join(project_root, "src")
-    # os.remove(src_path)
-    try:
-        shutil.rmtree(src_path, onerror=onerror)
-        os.mkdir(src_path)
-    except:
-        pass
-
-    return src_path
-
-
 @app.command()
 def setup(
         git_url: str = typer.Option(
@@ -102,6 +70,14 @@ def setup(
             prompt="Enter git destination url to watch",
             help="Git Repository URL, "
                  "ex [http://gitlab.it/datamining/natural-language-understanding/opinion-news-agancy]"
+        ),
+        track_commits: bool = typer.Option(
+            default=True,
+            prompt="Enable tracking commits in watcher?",
+        ),
+        track_tags: bool = typer.Option(
+            default=False,
+            prompt="Enable tracking tags in watcher?",
         ),
         command: str = typer.Option(
             default="",
@@ -132,6 +108,12 @@ def setup(
         print(COMMAND_UNDONE)
         raise typer.Exit()
 
+    # if both track_commits and track_tags are False
+    if (not track_commits) and (not track_tags):
+        print(ERROR_TEMPLATE.format("At least one of `track-commits` or `track-tags` should be set for watch"))
+        print(COMMAND_UNDONE)
+        raise typer.Exit()
+
     gtm = GitManipulator(git_url)
     is_valid = gtm.is_repo_valid()
     if not is_valid:
@@ -140,8 +122,7 @@ def setup(
         raise typer.Exit()
 
     if run_after_setup:
-        repo_path = get_cleaned_src_folder()
-        gtm.setup_repo(repo_path)
+        gtm.setup_repo(project_root)
         cmm = CommandManipulator(root=True)
         cmm.run("Running Command", command)
         # CommandManipulator.run(command)
@@ -157,7 +138,9 @@ def setup(
         "setup_done": True,
         "git_repo_url": git_url,
         "execute_command": command,
-        "sleep_interval": sleep_interval
+        "sleep_interval": sleep_interval,
+        "track_commits": track_commits,
+        "track_tags": track_tags
     }
     save_configs(new_configs)
     print(COMMAND_SUCCESSFUL.format("Configurations updated!"))
@@ -181,13 +164,17 @@ def start(see_the_oath_and_metaphor_of_the_app: bool = True):
     gtm = GitManipulator(git_url=configs["git_repo_url"])
 
     print("Cleaning src folder...")
-    repo_path = get_cleaned_src_folder()
 
     print("Setting up repo handler...")
-    gtm.setup_repo(repo_path)
+    gtm.setup_repo(project_root)
 
-    print("Getting Commits...")
+    print("Getting Commits and Tags...")
     latest_commits = gtm.fetch_commits()
+
+    if configs["track_tags"]:
+        latest_tags = gtm.fetch_tags(renew=True)
+    else:
+        latest_tags = gtm.fetch_tags(renew=False)
 
     # run the command
     cmm = CommandManipulator(root=True)
@@ -199,12 +186,19 @@ def start(see_the_oath_and_metaphor_of_the_app: bool = True):
         print(f"Sleeping for {sleep_duration} seconds")
         time.sleep(sleep_duration)
 
-        print("Fetching new commits...")
-        commits = gtm.fetch_commits(renew=False)
+        print("Fetching new changes...")
+        commits = []
+        if configs["track_commits"]:
+            commits = gtm.fetch_commits(renew=False)
 
-        if commits != latest_commits:
+        tags = []
+        if configs["track_tags"]:
+            tags = gtm.fetch_tags(renew=True)
+
+        if (commits != latest_commits) or (tags != latest_tags):
             typer.echo("Changes detected in source repository")
             latest_commits = commits
+            latest_tags = tags
 
             typer.echo("Running command")
             cmm.run(message="running command", command=configs["execute_command"])
@@ -220,9 +214,6 @@ def reset(
     if sure:
         new_configs = {
             "setup_done": False,
-            "git_repo_url": "",
-            "execute_command": "",
-            "sleep_interval": 2
         }
         save_configs(new_configs)
         print(COMMAND_SUCCESSFUL.format("Configurations Reset!"))

@@ -1,6 +1,8 @@
 from tempfile import TemporaryDirectory
 
 import git
+import shutil
+import os
 
 
 class GitManipulator:
@@ -8,8 +10,12 @@ class GitManipulator:
     _root_directory: str | None = None
     _repo: git.Repo | None = None
     _remote: git.Remote | None = None
+    _branch: str | None = None
 
-    def __init__(self, git_url: str):
+    def __init__(
+            self,
+            git_url: str,
+    ):
         self._git_url = git_url
 
     def is_repo_valid(self) -> bool:
@@ -29,21 +35,24 @@ class GitManipulator:
 
     def setup_repo(self, root_directory: str) -> None:
         self._root_directory = root_directory
-        self._clone_repo(self._root_directory)
+        self._clone_repo()
+        self._branch = self._repo.heads[0].name
         self._remote = git.Remote(self._repo, "origin")
 
-    def update_repo(self):
-        self._remote.pull(refspec="main")
-
-    def fetch_commits(self, renew=False) -> list[dict]:
+    def update_repo(self, renew: bool = False):
         if self._root_directory is None:
             raise Exception("setup_repo first!")
 
         if renew:
-            self._clone_repo(self._root_directory)
+            self._clone_repo()
         else:
-            self.update_repo()
+            self._remote.pull(refspec=self._branch)
 
+    def fetch_commits(
+            self,
+            renew: bool = False,
+    ) -> list[dict]:
+        self.update_repo(renew)
         commits_list = []
         for c in self._repo.iter_commits():
             commits_list.append(
@@ -55,5 +64,52 @@ class GitManipulator:
             )
         return commits_list
 
-    def _clone_repo(self, root_directory: str) -> None:
+    def fetch_tags(
+            self,
+            renew: bool = False
+    ) -> list[dict]:
+        self.update_repo(renew)
+        tags_list = []
+        for t in self._repo.tags:
+            tags_list.append(
+                {
+                    "name": t.name
+                }
+            )
+        return tags_list
+
+    def _clone_repo(self, root_directory: str | None = None) -> None:
+        if root_directory is None:
+            root_directory = self._get_cleaned_src_folder()
+
         self._repo = git.Repo.clone_from(url=self._git_url, to_path=root_directory)
+
+    def _get_cleaned_src_folder(self) -> str:
+        def onerror(func, path, exc_info):
+            """
+            Error handler for ``shutil.rmtree``.
+
+            If the error is due to an access error (read only file)
+            it attempts to add write permission and then retries.
+
+            If the error is for another reason it re-raises the error.
+
+            Usage : ``shutil.rmtree(path, onerror=onerror)``
+            """
+            import stat
+            # Is the error an access error?
+            if not os.access(path, os.W_OK):
+                os.chmod(path, stat.S_IWUSR)
+                func(path)
+            else:
+                raise
+
+        src_path = os.path.join(self._root_directory, "src")
+        # os.remove(src_path)
+        try:
+            shutil.rmtree(src_path, onerror=onerror)
+            os.mkdir(src_path)
+        except:
+            pass
+
+        return src_path
