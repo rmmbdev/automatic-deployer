@@ -23,5 +23,4 @@ Use the following command to start watching repo up watcher. <br>
 Use `--help` for additional commands and their functionality.
 
 ## Notes
-* Currently, it only supports new commits but in near future we will add option to watch tags too.
 * Currently, it only supports `main` branch but in near we will add option to watch other branches too.
