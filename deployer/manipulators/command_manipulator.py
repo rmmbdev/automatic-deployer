@@ -57,7 +57,10 @@ class CommandManipulator:
             return True
 
         print(temp % 'x', end=': ')
-        print(proc.stderr.read().decode('utf-8'), end='')
+        try:
+            print(proc.stderr.read().decode('utf-8'), end='')
+        except:
+            print(proc.stderr.read(), end='')
 
         if die:
             raise SystemExit(proc.returncode)
