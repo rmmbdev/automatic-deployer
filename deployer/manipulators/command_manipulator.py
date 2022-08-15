@@ -50,7 +50,10 @@ class CommandManipulator:
 
             if show_output:
                 outs, errs = proc.communicate(timeout=15)
-                outs_str = outs.decode('utf-8')
+                try:
+                    outs_str = outs.decode('utf-8')
+                except:
+                    outs_str = outs
                 print("Output:")
                 print(outs_str.split("Mode")[0])
 
