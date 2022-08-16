@@ -4,7 +4,6 @@ description = "A CLI App to watch git repo and automatically run a command (depl
 authors = [
     { name = "Reza Mohammadi", email = "rmm.dev.backend@gmail.com" },
 ]
-home-page = "https://github.com/tiangolo/fastapi"
 classifiers = [
     "Intended Audience :: Information Technology",
     "Intended Audience :: System Administrators",
@@ -12,10 +11,13 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python",
-    "Topic :: CLI",
-    "Topic :: Software Development :: Python Applications",
+    "Topic :: Home Automation",
+    "Topic :: Software Development :: Version Control :: Git",
+    "Topic :: Software Development :: Version Control",
     "Topic :: Software Development",
-    "Development Status :: 0 - Beta",
+    "Topic :: System :: Installation/Setup",
+    "Topic :: Utilities",
+    "Development Status :: 4 - Beta",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
@@ -48,3 +50,7 @@ version = { source = "file", path = "deployer/__init__.py" }
 
 [project.scripts]
 deployer = "deployer.cli:app"
+
+[project.urls]
+homepage = "https://github.com/rmmbdev/automatic-deployer"
+repository = "https://github.com/rmmbdev/automatic-deployer"
