@@ -60,10 +60,11 @@ class CommandManipulator:
             return True
 
         print(temp % 'x', end=': ')
+        outs, errs = proc.communicate(timeout=15)
         try:
-            print(proc.stderr.read().decode('utf-8'), end='')
+            print(errs.decode('utf-8'))
         except:
-            print(proc.stderr.read(), end='')
+            print(errs)
 
         if die:
             raise SystemExit(proc.returncode)
