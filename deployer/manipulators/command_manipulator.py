@@ -55,11 +55,21 @@ class CommandManipulator:
                 except:
                     outs_str = outs
                 print("Output:")
-                print(outs_str.split("Mode")[0])
+                print(outs_str)
 
             return True
 
         print(temp % 'x', end=': ')
+
+        if show_output:
+            outs, errs = proc.communicate(timeout=15)
+            try:
+                outs_str = outs.decode('utf-8')
+            except:
+                outs_str = outs
+            print("Output:")
+            print(outs_str)
+
         outs, errs = proc.communicate(timeout=15)
         try:
             print(errs.decode('utf-8'))
